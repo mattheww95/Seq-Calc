@@ -1,6 +1,11 @@
 # crispy_cody
 Calculate Breadth of coverage from either a directory of bam and bai files, or from a single bam and bai file.
 
+FOR THE CODIES OUTTHERE:
+  - git clone https://github.com/mattheww95/crispy_cody.git
+  - cd into the folder
+  - then create a conda environment conda create -n crispy_cody -f environment.yml
+
 
 environment.yml file is included in the directory to create a conda envrionment. This script requires pysam, so it will only run on linux.
 Eventually crispy cody will get crispier, by adding in the ability to add the depth of a given postion to a provided VCF

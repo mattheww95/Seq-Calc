@@ -12,7 +12,7 @@ An environment.yml file is included in the directory to create a conda envrionme
 Eventually crispy cody will get crispier, by adding in the ability to add the depth of a given postion to a provided VCF
 
 
-The help output is provided below, if there any questions please e-mail me. Similarly if you are Cody, just come ask me.
+The help output is provided below, if there any questions please e-mail me. Similarly if you are a Cody, just come ask me.
 
 usage: crispy_cody.py 
 [-h]

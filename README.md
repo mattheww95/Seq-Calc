@@ -9,13 +9,20 @@ Eventually crispy cody will get crispier, by adding in the ability to add the de
 The help output is provided below, if there any questions please e-mail me. Similarly if you are Cody, just come ask me.
 
 usage: crispy_cody.py 
-[-h] 
+[-h]
+
 [-b BAM] 
+
 [-i BAM_INDEX] 
+
 [-t THRESHOLD]
+
 [-d DIRECTORY_SCAN] 
+
 [-v VERBOSE] 
+
 [-l GENOME_LENGTH]
+
 [-x LOG]
 
 Calculate the breadth of coverage for a sequence

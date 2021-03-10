@@ -16,19 +16,26 @@ Calculate the breadth of coverage for a sequence
 
 optional arguments:
   -h, --help            show this help message and exit
+  
   -b BAM, --bam BAM     Specify input bam file
+  
   -i BAM_INDEX, --bam_index BAM_INDEX
                         Index file for bam to be calculated
+                        
   -t THRESHOLD, --threshold THRESHOLD
                         Set the threshold for the pileup coverage, default
                         value is 5
+                        
   -d DIRECTORY_SCAN, --directory_scan DIRECTORY_SCAN
                         path to directory containing bams and bai files, files
                         must have shared handle before first '.' appears
+                        
   -v VERBOSE, --verbose VERBOSE
                         Use a verbose output, default is False
+                        
   -l GENOME_LENGTH, --genome_length GENOME_LENGTH
                         Length of genome to be calculated, default is 29903
+                        
   -x LOG, --log LOG     Default is false, set to true to have output saved to
                         log file in thecurrent working directory. Default is
                         false, enter true for a log to be generated. A

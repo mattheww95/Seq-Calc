@@ -7,7 +7,8 @@ FOR THE CODIES OUTTHERE:
   - then create a conda environment conda create -n crispy_cody -f environment.yml
 
 
-environment.yml file is included in the directory to create a conda envrionment. This script requires pysam, so it will only run on linux.
+environment.yml file is included in the directory to create a conda envrionment. This script requires pysam, so it will only run on **linux** (maybe mac too, but 
+who the heck knows).
 Eventually crispy cody will get crispier, by adding in the ability to add the depth of a given postion to a provided VCF
 
 

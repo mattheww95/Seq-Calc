@@ -62,7 +62,7 @@ def check_for_args(arg, success, scan):
     if arg is not None:
         return True
     elif scan is not None:
-        pass
+        return False
     else:
         parser.print_help()
         sys.exit(f"Missing required argument {success}")

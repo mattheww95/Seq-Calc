@@ -11,9 +11,9 @@ def scan_dir(directory):
     combo = {}
     for i in bams:
         if i[-3:] == 'bam':
-            bam.append(i)
+            bam.append(str(directory) + i)
         elif i[-3:] == 'bai':
-            bais.append(i)
+            bais.append(str(directory) + i)
         else:
             continue
     for ii in bais:
@@ -51,7 +51,8 @@ def check_scan_dir(dict_of_pairs, thresh):
     if dict_of_pairs is not None:
         print("directory scan chosen")
         for i in dict_of_pairs.keys():
-            print("Sample being used", i, dict_of_pairs[i])
+            print("Sample being used", i[i.rindex('/')+1:i.index('.')],
+                  dict_of_pairs[i][dict_of_pairs[i].rindex('/') + 1: dict_of_pairs[i].index('.')])
             actual_calc(bam=i, bai=dict_of_pairs[i], thresh=thresh)
         sys.exit("Finished")
     else:

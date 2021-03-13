@@ -1,0 +1,6 @@
+# setuptools distribuition folder
+/dist/
+
+# Python egg info
+/*.egg-info
+/*.egg

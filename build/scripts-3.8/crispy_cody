@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import pysam
 import argparse
@@ -35,28 +35,49 @@ def actual_calc(bam, bai, thresh):
         print(bamfile.header)
 
     crispiest_cody = 0
+    pileups_present = 0
     for pileupcolumn in bamfile.pileup(contig='MN908947.3', truncate=False, max_depth=10000, min_base_quality=1,
                                        filepath_index=bamindex):
         #  print("\ncoverage at base %s = %s" % (pileupcolumn.pos, pileupcolumn.n))
+        pileups_present += 1
         if pileupcolumn.n < thresh:
             crispiest_cody += 1
     bamfile.close()
-    b_cov = round((float(args.genome_length - crispiest_cody) / args.genome_length) * 100, 2)
+    # print(f"Genome length {args.genome_length}, N's counted {crispiest_cody}, pileups {pileups_present}")
+    # missing completely empty reads
 
+    missing_pos = args.genome_length - pileups_present
+    if missing_pos < 0:
+        print("Number of missing positons is negative, check that the genome length is correct")
+        sys.exit()
+    b_cov = round((float(args.genome_length - (crispiest_cody + missing_pos)) / args.genome_length) * 100, 2)
     print('\n')
     print("THE BREADTH OF COVERAGE FOR SAMPLE {} IS {} %".format(bam, b_cov))
     print(f"THE TOTAL NUMBER OF N's FOUND IS {crispiest_cody}")
-    print('\n'*4)
+    print(f"THE TOTAL NUMBER OF PILEUPS OBSERVED WAS {pileups_present}")
+    print('\n'*2)
+    bam_name = bam[bam.rindex('/')+1:bam.rindex('.')]
+    return_val = f"Breadth of coverage for {bam_name} is {b_cov} %, with a genome length of {args.genome_length}." \
+                 f"A total of {crispiest_cody} N's were found with {missing_pos} missing positions. \n\n"
+    return return_val
 
 
-def check_scan_dir(dict_of_pairs, thresh):
+def check_scan_dir(dict_of_pairs, thresh, output_arg):
     if dict_of_pairs is not None:
         print("directory scan chosen")
-        for i in dict_of_pairs.keys():
-            print("Sample being used", i[i.rindex('/')+1:i.index('.')],
-                  dict_of_pairs[i][dict_of_pairs[i].rindex('/') + 1: dict_of_pairs[i].index('.')])
-            actual_calc(bam=i, bai=dict_of_pairs[i], thresh=thresh)
-        sys.exit("Finished")
+        for_out = output_arg
+        if for_out == 'T':
+            print("Opening Crispy_cody.txt for log output")
+            with open(os.getcwd() + '/' + "Crispy_Cody.txt", 'w') as cody_log:
+                for i in dict_of_pairs.keys():
+                    cody_log.write("Sample being used " + i[i.rindex('/')+1:i.rindex('.')] + " and " +
+                                   dict_of_pairs[i][dict_of_pairs[i].rindex('/') + 1: dict_of_pairs[i].rindex('.')] + '\n')
+                    returned = actual_calc(bam=i, bai=dict_of_pairs[i], thresh=thresh)
+                    cody_log.write(returned)
+        elif for_out != 'T':
+            for i in dict_of_pairs.keys():
+                returned = actual_calc(bam=i, bai=dict_of_pairs[i], thresh=thresh)
+                print(returned)
     else:
         pass
 
@@ -79,39 +100,45 @@ def dir_path(string):
 
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description='Calculate the breadth of coverage for a sequence')
-	parser.add_argument('-b', '--bam', help='Specify input bam file', action='store')
-	parser.add_argument('-i', '--bam_index', help='Index file for bam to be calculated', action='store')
-	parser.add_argument('-t', '--threshold', help='Set the threshold for the pileup coverage, default value is 5',
-						type=int, default=5, action='store')
-	parser.add_argument('-d', '--directory_scan', action='store',
-						help="path to directory containing bams and bai files, files must have shared handle "
-							 "before first '.' appears", type=dir_path)
-	parser.add_argument('-v', '--verbose', help='Use a verbose output, default is False',
-						action='store', default="FALSE")
-	parser.add_argument('-l', '--genome_length', help="Length of genome to be calculated, default is 29903",
-						default=29903, type=int)
-	parser.add_argument('-x', '--log', help="Default is false, set to true to have output saved to log file in the"
-											"current working directory. Default is false, enter true for a log "
-											"to be generated. A previous log file will be over written if present."
-											"The output location will be in the current directory",
-						action='store', default='f')
+    parser = argparse.ArgumentParser(description='Calculate the breadth of coverage for a sequence')
+    parser.add_argument('-b', '--bam', help='Specify input bam file', action='store')
+    parser.add_argument('-i', '--bam_index', help='Index file for bam to be calculated', action='store')
+    parser.add_argument('-t', '--threshold', help='Set the threshold for the pileup coverage, default value is 5',
+                        type=int, default=5, action='store')
+    parser.add_argument('-d', '--directory_scan', action='store',
+                        help="path to directory containing bams and bai files, files must have shared handle "
+                             "before first '.' appears", type=dir_path)
+    parser.add_argument('-v', '--verbose', help='Use a verbose output, default is False',
+                        action='store', default="FALSE")
+    parser.add_argument('-l', '--genome_length', help="Length of genome to be calculated, default is 29903",
+                        default=29903, type=int)
+    parser.add_argument('-x', '--log', help="Default is false, set to true to have output saved to log file in the"
+                                            "current working directory. Default is false, enter true for a log "
+                                            "to be generated. A previous log file will be over written if present."
+                                            "The output location will be in the current directory",
+                        action='store')
 
-	args = parser.parse_args()
-	log = None
-	if args.log[0].upper == 'T':
-		log = open("Crispy_Codys_log.log", "w")
-		sys.stdout = log
+    args = parser.parse_args()
+    for_log = args.log
 
-	bam_1 = check_for_args(arg=args.bam, success="Bam file", scan=args.directory_scan)
-	bai_1 = check_for_args(arg=args.bam_index, success="Bam index", scan=args.directory_scan)
-	threshold = args.threshold
+    if for_log is not None:
+        for_log = for_log.upper()
+    else:
+        for_log = 'f'
 
-	if bam_1 and bai_1:
-		actual_calc(bam=args.bam, bai=args.bam_index, thresh=threshold)
-	else:
-		files = scan_dir(args.directory_scan)
-		check_scan_dir(files, thresh=threshold)
-		if args.log:
-			log.close()
+    bam_1 = check_for_args(arg=args.bam, success="Bam file", scan=args.directory_scan)
+    bai_1 = check_for_args(arg=args.bam_index, success="Bam index", scan=args.directory_scan)
+    threshold = args.threshold
 
+    if bam_1 and bai_1:
+        if for_log[0] != 'f' and for_log[0].upper == 'T':
+            with open(os.getcwd()+'/'+"Crispy_cody.txt", "w") as log_out:
+                log_out.write("For sample " + args.bam[args.bam.rindex('/'):args.bam.rindex('.')])
+                the_calc = actual_calc(bam=args.bam, bai=args.bam_index, thresh=threshold)
+                log_out.write(the_calc)
+        else:
+            the_calc = actual_calc(bam=args.bam, bai=args.bam_index, thresh=threshold)
+            print(the_calc)
+    else:
+        files = scan_dir(args.directory_scan)
+        check_scan_dir(files, thresh=threshold, output_arg=for_log[0])

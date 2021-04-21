@@ -5,7 +5,7 @@ import argparse
 import sys
 import os
 
-
+"""
 def scan_dir(directory):
     bams = list(os.listdir(directory))
     bais = []
@@ -25,6 +25,33 @@ def scan_dir(directory):
             else:
                 continue
     return combo
+"""
+
+
+def scan_dir(directory):
+    bams = list(os.listdir(directory))
+    bais = []
+    bam = []
+    combo = {}
+    for i in bams:
+        if i[-3:] == 'bam':
+            bam.append(str(directory) + i)
+        elif i[-3:] == 'bai':
+            bais.append(str(directory) + i)
+        elif i[-3:] + ".bai" not in bams and i[-3:] == 'bam':
+            print(f"Creating index for {i[-3:]}")
+            pysam.index(i + ".bai")
+            bais.append(str(directory) + ".bai")
+        else:
+            continue
+    for ii in bais:
+        test_bai = str(ii[ii.rindex('/')+1:])
+        for iii in bam:
+            test_bam = str(iii[iii.rindex('/')+1:])
+            if test_bai[:test_bai.index('.')] == test_bam[:test_bam.index('.')]:
+                combo[iii] = ii
+                print(iii, combo[iii])
+    return combo
 
 
 def actual_calc(bam, bai, thresh):
@@ -36,29 +63,34 @@ def actual_calc(bam, bai, thresh):
 
     crispiest_cody = 0
     pileups_present = 0
+    sum_of_c = 0
     for pileupcolumn in bamfile.pileup(contig='MN908947.3', truncate=False, max_depth=10000, min_base_quality=1,
                                        filepath_index=bamindex):
         #  print("\ncoverage at base %s = %s" % (pileupcolumn.pos, pileupcolumn.n))
+        sum_of_c += int(pileupcolumn.n)
         pileups_present += 1
         if pileupcolumn.n < thresh:
             crispiest_cody += 1
     bamfile.close()
     # print(f"Genome length {args.genome_length}, N's counted {crispiest_cody}, pileups {pileups_present}")
     # missing completely empty reads
-
+    avg_depth = round((sum_of_c/args.genome_length), 2)
     missing_pos = args.genome_length - pileups_present
     if missing_pos < 0:
         print("Number of missing positons is negative, check that the genome length is correct")
         sys.exit()
     b_cov = round((float(args.genome_length - (crispiest_cody + missing_pos)) / args.genome_length) * 100, 2)
+    bam_name = bam[bam.rindex('/') + 1:bam.rindex('.')]
     print('\n')
-    print("THE BREADTH OF COVERAGE FOR SAMPLE {} IS {} %".format(bam, b_cov))
+    print(f"THE BREADTH OF COVERAGE FOR SAMPLE {bam_name} IS {b_cov} %")
     print(f"THE TOTAL NUMBER OF N's FOUND IS {crispiest_cody}")
     print(f"THE TOTAL NUMBER OF PILEUPS OBSERVED WAS {pileups_present}")
+    print(f"THE AVERAGE DEPTH IS {avg_depth}")
     print('\n'*2)
-    bam_name = bam[bam.rindex('/')+1:bam.rindex('.')]
+
     return_val = f"Breadth of coverage for {bam_name} is {b_cov} %, with a genome length of {args.genome_length}." \
-                 f"A total of {crispiest_cody} N's were found with {missing_pos} missing positions. \n\n"
+                 f"A total of {crispiest_cody} N's were found with {missing_pos} missing positions. \n" \
+                 f"Average depth of coverage for {bam_name} is {avg_depth} Nucleotides\n\n"
     return return_val
 
 
@@ -70,8 +102,9 @@ def check_scan_dir(dict_of_pairs, thresh, output_arg):
             print("Opening Crispy_cody.txt for log output")
             with open(os.getcwd() + '/' + "Crispy_Cody.txt", 'w') as cody_log:
                 for i in dict_of_pairs.keys():
+                    print(i, dict_of_pairs[i])
                     cody_log.write("Sample being used " + i[i.rindex('/')+1:i.rindex('.')] + " and " +
-                                   dict_of_pairs[i][dict_of_pairs[i].rindex('/') + 1: dict_of_pairs[i].rindex('.')] + '\n')
+                                   dict_of_pairs[i][dict_of_pairs[i].rindex('/')+1:] + '\n')
                     returned = actual_calc(bam=i, bai=dict_of_pairs[i], thresh=thresh)
                     cody_log.write(returned)
         elif for_out != 'T':
@@ -127,7 +160,7 @@ if __name__ == '__main__':
         for_log = 'f'
 
     bam_1 = check_for_args(arg=args.bam, success="Bam file", scan=args.directory_scan)
-    bai_1 = check_for_args(arg=args.bam_index, success="Bam index", scan=args.directory_scan)
+    bai_1 = check_for_args(arg=args.bam_index, success="Bam index", scan=args.directory_scan) # make create index
     threshold = args.threshold
 
     if bam_1 and bai_1:

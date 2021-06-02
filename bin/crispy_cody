@@ -67,7 +67,7 @@ def actual_calc(bam, bai, thresh):
     print(f"THE AVERAGE DEPTH IS {avg_depth}")
     print('\n'*2)
 
-    return_val = f"{bam_name},{b_cov},{args.genome_length},{crispiest_cody},{missing_pos},{avg_depth}\n"
+    return_val = f"{bam_name},{b_cov},{avg_depth},{crispiest_cody},{missing_pos},{args.genome_length}\n"
     return return_val
 
 
@@ -78,7 +78,7 @@ def check_scan_dir(dict_of_pairs, thresh, output_arg):
         if for_out == 'T':
             print("Opening Crispy_cody.csv for log output")
             with open(os.getcwd() + '/' + "Crispy_Cody.csv", 'w') as cody_log:
-                cody_log.write("Bam_file,Percent_coverage,genome_length,Ns,missing_positions,avg_depth\n")
+                cody_log.write("Bam_file,Percent_coverage,avg_depth,Ns,missing_positions,genome_length\n")
                 for i in dict_of_pairs.keys():
                     print(i, dict_of_pairs[i])
                     #cody_log.write("Sample being used " + i[i.rindex('/')+1:i.rindex('.')] + " and " +
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         if for_log[0] != 'f' and for_log[0].upper == 'T':
             with open(os.getcwd()+'/'+"Crispy_cody.csv", "w") as log_out:
                 # log_out.write("For sample " + args.bam[args.bam.rindex('/'):args.bam.rindex('.')])
-                log_out.write("Bam_file,Percent_coverage,genome_length,Ns,missing_positions,avg_depth")
+                log_out.write("Bam_file,Percent_coverage,avg_depth,Ns,missing_positions,genome_length")
                 the_calc = actual_calc(bam=args.bam, bai=args.bam_index, thresh=threshold)
                 log_out.write(the_calc)
         else:

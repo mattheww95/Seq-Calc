@@ -76,12 +76,13 @@ def check_scan_dir(dict_of_pairs, thresh, output_arg):
         print("directory scan chosen")
         for_out = output_arg
         if for_out == 'T':
-            print("Opening Crispy_cody.txt for log output")
-            with open(os.getcwd() + '/' + "Crispy_Cody.txt", 'w') as cody_log:
+            print("Opening Crispy_cody.csv for log output")
+            with open(os.getcwd() + '/' + "Crispy_Cody.csv", 'w') as cody_log:
+                cody_log.write("Bam_file,Percent_coverage,genome_length,Ns,missing_positions,avg_depth\n")
                 for i in dict_of_pairs.keys():
                     print(i, dict_of_pairs[i])
-                    cody_log.write("Sample being used " + i[i.rindex('/')+1:i.rindex('.')] + " and " +
-                                   dict_of_pairs[i][dict_of_pairs[i].rindex('/')+1:] + '\n')
+                    #cody_log.write("Sample being used " + i[i.rindex('/')+1:i.rindex('.')] + " and " +
+                    #               dict_of_pairs[i][dict_of_pairs[i].rindex('/')+1:] + '\n')
                     returned = actual_calc(bam=i, bai=dict_of_pairs[i], thresh=thresh)
                     cody_log.write(returned)
         elif for_out != 'T':

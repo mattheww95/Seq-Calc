@@ -5,27 +5,6 @@ import argparse
 import sys
 import os
 
-"""
-def scan_dir(directory):
-    bams = list(os.listdir(directory))
-    bais = []
-    bam = []
-    combo = {}
-    for i in bams:
-        if i[-3:] == 'bam':
-            bam.append(str(directory) + i)
-        elif i[-3:] == 'bai':
-            bais.append(str(directory) + i)
-        else:
-            continue
-    for ii in bais:
-        for iii in bam:
-            if ii[0:ii.index('.')] == iii[0:iii.index('.')]:
-                combo[iii] = ii
-            else:
-                continue
-    return combo
-"""
 
 
 def scan_dir(directory):
@@ -88,9 +67,7 @@ def actual_calc(bam, bai, thresh):
     print(f"THE AVERAGE DEPTH IS {avg_depth}")
     print('\n'*2)
 
-    return_val = f"Breadth of coverage for {bam_name} is {b_cov} %, with a genome length of {args.genome_length}." \
-                 f"A total of {crispiest_cody} N's were found with {missing_pos} missing positions. \n" \
-                 f"Average depth of coverage for {bam_name} is {avg_depth} Nucleotides\n\n"
+    return_val = f"{bam_name},{b_cov},{args.genome_length},{crispiest_cody},{missing_pos},{avg_depth}\n"
     return return_val
 
 
@@ -165,8 +142,9 @@ if __name__ == '__main__':
 
     if bam_1 and bai_1:
         if for_log[0] != 'f' and for_log[0].upper == 'T':
-            with open(os.getcwd()+'/'+"Crispy_cody.txt", "w") as log_out:
-                log_out.write("For sample " + args.bam[args.bam.rindex('/'):args.bam.rindex('.')])
+            with open(os.getcwd()+'/'+"Crispy_cody.csv", "w") as log_out:
+                # log_out.write("For sample " + args.bam[args.bam.rindex('/'):args.bam.rindex('.')])
+                log_out.write("Bam_file,Percent_coverage,genome_length,Ns,missing_positions,avg_depth")
                 the_calc = actual_calc(bam=args.bam, bai=args.bam_index, thresh=threshold)
                 log_out.write(the_calc)
         else:
